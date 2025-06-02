@@ -47,6 +47,15 @@
       width: 122px;
     }
   </style>
+
+<script src="https://cdn.trackjs.com/agent/v3/latest/t.js"></script>
+<script>
+  window.TrackJS && TrackJS.install({ 
+    token: "6a7c95be048b4a36890d1491febad537"
+    // for more configuration options, see https://docs.trackjs.com
+  });
+</script>
+
 </head>
 
 <body>
@@ -88,6 +97,20 @@
   </main>
 
   <script>
+    class CalcError extends Error {
+        constructor(message) {
+            super(message);
+            this.name = "CalcError";
+            this.timestamp = new Date();
+        }
+    }
+
+    //global error
+    window.onerror = function(message, source, lineno, colno, error) {
+        console.log('Global error:', { message, source, line: lineno, colum: colno, error });
+    };
+
+
     let form = document.querySelector('form');
     form.addEventListener('submit', e => {
       e.preventDefault();
@@ -95,13 +118,111 @@
       let firstNum = document.querySelector('#first-num').value;
       let secondNum = document.querySelector('#second-num').value;
       let operator = document.querySelector('#operator').value;
-      output.innerHTML = eval(`${firstNum} ${operator} ${secondNum}`);
+      //output.innerHTML = eval(`${firstNum} ${operator} ${secondNum}`);
+
+      try {
+        //check if input is valid
+        if (isNaN(firstNum) || isNaN(secondNum)) {
+            throw new CalcError('enter valid numbers');
+        }
+        
+        output.innerHTML = eval(`${firstNum} ${operator} ${secondNum}`);
+    } catch (error) {
+        output.innerHTML = `<div style="color:red">[${error.name} at ${error.timestamp.toLocaleTimeString()}]: ${error.message}</div>`
+        console.error('error:', error.message);
+    } finally {
+        console.log('calcuated');
+    }
     });
 
     let errorBtns = Array.from(document.querySelectorAll('#error-btns > button'));
 
     // Start your code here
     // You may move this JS to another file if you wish
+    errorBtns.forEach((btn, index) => {
+        btn.addEventListener('click', () => {
+            switch(index) {
+                case 0: //console log
+                console.log('regular log message', {
+                    date: new Date(),
+                    userAgent: navigator.userAgent,
+                    mathResult: 2 + 2
+                }
+                );
+                break;
+
+                case 1: //console error
+                console.error('error!');
+                break;
+
+                case 2: //console count
+                console.count('button click count');
+                break;
+
+                case 3: //console warn
+                console.warn('warning!');
+                break;
+
+                case 4: //console assert
+                console.assert(2 + 2 === 5, 'assert failed, 2 + 2 does not equal 5');
+                break;
+
+                case 5: //console clear
+                console.clear();
+                break;
+
+                case 6: //console dir
+                console.dir(document.body);
+                break;
+
+                case 7: //console dirxml
+                console.dirxml(document.head);
+                break;
+
+                case 8: //console group start
+                console.group('class details');
+                console.log('Name: CSE 110');
+                console.log('Dates: Tues, Thurs');
+                break;
+
+                case 9: //console group end
+                console.groupEnd();
+
+                case 10: //console table
+                const ppl = [
+                    { name: 'John', age: 20, year: 3},
+                    { name: 'Jane', age: 21, year: 4}
+                ];
+                console.table(ppl);
+                break;
+
+                case 11: //start timer 
+                console.time();
+                break;
+
+                case 12: //end timer
+                console.timeEnd();
+                break;
+
+                case 13: //console trace
+                function firstfunc() {
+                    secondfunc();
+                }
+                function secondfunc() {
+                    thirdfunc();
+                }
+                function thirdfunc() {
+                    console.trace('trace function calls');
+                }
+                firstfunc();
+                break;
+
+                case 14: //global error
+                randomFunc();
+                break;
+            }
+        });
+    });
   </script>
 </body>
 
